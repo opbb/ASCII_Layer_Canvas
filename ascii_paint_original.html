@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head><meta http-equiv="Content-Type" content="text/html;" charset="UTF-8">
 <link rel="shortcut icon" href="icon.jpg" type="image/x-icon">
-<title>ASCII Layer Canvas</title>
+<title>ASCII Art Paint</title>
 <style>
 *{
 	font-family:Arial;
@@ -33,7 +33,7 @@
     --ac:rgba(255,255,255,0.8);
     --at:rgba(240,240,240,0.8);
     --bh:#efefff;
-    --font:"MxPlus_IBM_BIOS_Centered";
+    --font:Arial;
 }
 *::-webkit-scrollbar {
 	width: 6px;
@@ -94,7 +94,7 @@ body{height:100vh;width:100vw;}
 #asciicanvas td{
     text-align:center;
     height:14px;
-    width:14px;
+    width:8px;
     font-size: 12px;
     border-style:solid;
     border-width:1px;
@@ -324,7 +324,6 @@ input[type=range]::-moz-range-progress{-moz-appearance:none;height:8px;backgroun
 <tr><td style="height:calc(100vh - 80px);">
     <div id="right_menu" style="height:calc(100vh - 80px);width:256px;overflow-y:scroll;background-color:var(--wn);text-align:center;">
         <select id="fonts" class="input_text" style="width:calc(100% - 28px);margin-bottom:16px;" oninput='root_style.style.setProperty("--font",this.value);'>
-            <option value="MxPlus_IBM_BIOS_Centered">MxPlus IBM BIOS Centered</option>
             <option value="Arial">Arial</option>
             <option value="Lucida Console" selected>Lucida Console</option>
             <option value="Courier New" selected>Courier New</option>
@@ -455,9 +454,7 @@ input[type=range]::-moz-range-progress{-moz-appearance:none;height:8px;backgroun
         <tr><td title='Fill' onclick="select_tool(3);" class='tools icon button_menu icon_fill'></td></tr>
         <tr><td title='Pipette' onclick="select_tool(4);" class='tools icon button_menu icon_pipette'></td></tr>
         <tr><td title='Selected' onclick="select_tool(5);" class='tools icon button_menu icon_selected'></td></tr>
-        <tr><td title='Brush' onclick="select_tool(6);" class='tools icon button_menu icon_brush'></td></tr>
-        <tr><td id="active_brush" align='center' valign='center' class="tools icon" style="font-size:18px; width:40px;height:40px;border-top:1px solid var(--cb);"></td></tr>
-        <tr><td id="active_bkgBrush" align='center' valign='center' class="tools icon" style="font-size:18px;border-radius:0 0 16px 16px; width:40px;height:40px;">&nbsp;</td></tr>
+        <tr><td id="active_brush" align='center' valign='center' class="tools icon" style="font-size:18px;border-radius:0 0 16px 16px; width:40px;height:40px;border-top:1px solid var(--cb);"></td></tr>
     </tbody>
 </table>
 <div id="scene_controll">
@@ -525,7 +522,7 @@ input[type=range]::-moz-range-progress{-moz-appearance:none;height:8px;backgroun
 <script>
 var range_font=[33,11969],edit_p=false,palette="██▓▒░☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼`⌂ÇæÆ¢£¥₧ƒªº¿⌐¬½¼¡«»│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙⋅√ⁿ²■";
 var se,x1,x2,y1,y2;
-var db=[[],[],[],[],[],[],[],[]],tool=0,img,scale=1,back_up=[],state_num=0,tr,td,brush="*",bkgBrush="#FF0000",frame=document.getElementById('asciicanvas'),canvas=frame.getElementsByTagName('tbody')[0],mouseclick=false,files=document.getElementById('file'),window_zone=document.getElementById("window_zone"),tool_zone=document.getElementById("tool_zone"),selected=[0,0,0,0],targetcell=[0,0],copydb="",root_style=document.querySelector(':root');
+var db=[[],[],[],[],[],[],[],[]],tool=0,img,scale=1,back_up=[],state_num=0,tr,td,brush="*",frame=document.getElementById('asciicanvas'),canvas=frame.getElementsByTagName('tbody')[0],mouseclick=false,files=document.getElementById('file'),window_zone=document.getElementById("window_zone"),tool_zone=document.getElementById("tool_zone"),selected=[0,0,0,0],targetcell=[0,0],copydb="",root_style=document.querySelector(':root');
 var contextmenushow=false,doc;
 if(asciicanvas.addEventListener){asciicanvas.addEventListener('contextmenu',function(e){menu_right(e);e.preventDefault();},false);}
 else{asciicanvas.attachEvent('oncontextmenu',function(){window.event.returnValue=false;});}
@@ -537,7 +534,7 @@ function menu_right(e){
     context_menu.style.top=(e.clientY+asciiscreen.scrollTop-doc.top)/scale+"px";
 }
 window.addEventListener('mousemove',function(e){if(tool==5){cursor_text.style.left=(e.clientX+16)+"px";cursor_text.style.top=(e.clientY+16)+"px";}})
-window.addEventListener('mousedown',function(e){if(e.button==0){if(tool==0||tool==3||tool==5||tool==6){mouseclick=true;};if(contextmenushow){contextmenushow=false;context_menu.style.visibility='hidden';mouseclick=false;}} })
+window.addEventListener('mousedown',function(e){if(e.button==0){if(tool==0||tool==3||tool==5){mouseclick=true;};if(contextmenushow){contextmenushow=false;context_menu.style.visibility='hidden';mouseclick=false;}} })
 window.addEventListener('mouseup',function(){mouseclick=false;cursor_text.style.display="none"})
 window.addEventListener('keypress',function(e){let n=String.fromCharCode(e.charCode);brush=n;active_brush.innerHTML=brush;})
 asciicanvas.addEventListener('mouseup',function(){if(tool!=2&&tool!=5){state_save()};})
@@ -676,8 +673,8 @@ function buildWorld(){
         tr=document.createElement("tr");
         for(x=0;x<w;x++){
             td=document.createElement("td");
-            td.setAttribute("onmouseenter","if(event.which!=3&&!contextmenushow){targetcell=["+x+","+y+"];cur_x.innerHTML="+(x+1)+";cur_y.innerHTML="+(y+1)+";if(mouseclick){if(tool==5){selected[2]="+x+";selected[3]="+y+";select_arr();} else if(tool==0){this.innerHTML=brush;} else if(tool==6){this.style.backgroundColor=bkgBrush;} else if(tool==3){this.innerHTML=' ';this.style.backgroundColor='';}}}")
-            td.setAttribute("onmousedown","if(event.button==0&&event.which!=3&&!contextmenushow){if(tool==5){selected=["+x+","+y+","+x+","+y+"];select_arr();}else if(tool==0){this.innerHTML=brush;}else if(tool==3){this.innerHTML=' ';this.style.backgroundColor='';}else if(tool==1){start_fill("+x+","+y+",this.textContent);}else if(tool==4){brush=this.textContent;active_brush.innerHTML=brush;} else if(tool==6){this.style.backgroundColor=bkgBrush;}}")
+            td.setAttribute("onmouseenter","if(event.which!=3&&!contextmenushow){targetcell=["+x+","+y+"];cur_x.innerHTML="+(x+1)+";cur_y.innerHTML="+(y+1)+";if(mouseclick){if(tool==5){selected[2]="+x+";selected[3]="+y+";select_arr();}else if(tool==0){this.innerHTML=brush;}else if(tool==3){this.innerHTML=' ';}}}")
+            td.setAttribute("onmousedown","if(event.button==0&&event.which!=3&&!contextmenushow){if(tool==5){selected=["+x+","+y+","+x+","+y+"];select_arr();}else if(tool==0){this.innerHTML=brush;}else if(tool==3){this.innerHTML=' ';}else if(tool==1){start_fill("+x+","+y+",this.textContent);}else if(tool==4){brush=this.textContent;active_brush.innerHTML=brush;}}")
             td.setAttribute("oncontextmenu","targetcell=["+x+","+y+"]")
             if(se&&(x1<=x&&x<=x2)&&(y1<=y&&y<=y2)){td.style.backgroundColor="var(--cw)"}
             if(db[y][x]&&db[y][x]!=" "){td.innerHTML=db[y][x]}else{td.innerHTML=" "}
@@ -796,7 +793,7 @@ function applyChar(){
         localStorage.setItem("palette",palette);
         createPalette();localStorage.setItem("range_font",JSON.stringify(range_font));
         fonts.selectedIndex=fonts_palette.selectedIndex;
-
+    
     }
 }
 function createPalette(){
@@ -946,7 +943,7 @@ function img_to_ascii(r){
             context.drawImage(image,0,0,w,h);
             const grayScales=convertToGrayScales(context,w,h);
             if(r==1){drawBraille(w,h)}else{drawAscii(grayScales,w)}
-
+            
         };image.src=l.target.result;
     };reader.readAsDataURL(img);
 };
@@ -1029,6 +1026,6 @@ function save_png(){
 }
 function correct_value(name){if(name.includes("+")||name.includes("-")||name.includes("*")||name.includes("/")){return parseInt(eval(name))}else{return parseInt(name)}}
 function state_back(n){state_num+=n;if(state_num<0){state_num=0}else if(state_num>=back_up.length-1){state_num=back_up.length-1};db=back_up[state_num].split("\n");buildWorld();}
-document.addEventListener('DOMContentLoaded',function(){createPalette();active_brush.innerHTML=brush;active_bkgBrush.style.backgroundColor=bkgBrush;if(localStorage.getItem("range_font")){range_font=JSON.parse(localStorage.getItem("range_font"))};if(localStorage.getItem("palette")){palette=localStorage.getItem("palette");createPalette();}})
+document.addEventListener('DOMContentLoaded',function(){createPalette();active_brush.innerHTML=brush;if(localStorage.getItem("range_font")){range_font=JSON.parse(localStorage.getItem("range_font"))};if(localStorage.getItem("palette")){palette=localStorage.getItem("palette");createPalette();}})
 </script>
 </body></html>
