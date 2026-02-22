@@ -125,6 +125,20 @@ body{height:100vh;width:100vw;}
 }
 .button_menu{background-position:center;cursor:pointer;width:40px;height:40px;}
 .button_menu:hover{background-color:var(--bh);}
+.button_text{background-position:center;cursor:pointer;height:40px;line-height: 40px;padding: 0 10px;border: 1px solid var(--bh);}
+.button_text:hover{background-color:var(--bh);}
+.button_text_selected{background-color:var(--cb);}
+.button_text_selected:hover{background-color:var(--cb);}
+.button_row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    gap: 10px;
+    flex-wrap: nowrap;
+}
+.button_row > label {
+    flex-grow: 1;
+}
 #tool_zone{
     position:fixed;
     left:76px;top:50vh;
@@ -323,6 +337,16 @@ input[type=range]::-moz-range-progress{-moz-appearance:none;height:8px;backgroun
 </td><td style="height:40px;background-color:var(--wn);"> </td></tr>
 <tr><td style="height:calc(100vh - 80px);">
     <div id="right_menu" style="height:calc(100vh - 80px);width:256px;overflow-y:scroll;background-color:var(--wn);text-align:center;">
+        <div>
+            <h2>Brush Type</h2>
+            <form id="brush_type">
+                <div class="button_row">
+                <label for="brush_type_char" class="button_text button_text_selected">Character<input id="brush_type_char" type="checkbox" name="brush_type" onclick="update_label_selected(this)" checked hidden></label>
+                <label for="brush_type_bg" class="button_text">Background<input id="brush_type_bg" type="checkbox" name="brush_type" onclick="update_label_selected(this)" hidden></label>
+                <label for="brush_type_class" class="button_text">Class<input id="brush_type_class" type="checkbox" name="brush_type" onclick="update_label_selected(this)" hidden></label>
+                </div>
+            </form>
+        </div>
         <select id="fonts" class="input_text" style="width:calc(100% - 28px);margin-bottom:16px;" oninput='root_style.style.setProperty("--font",this.value);'>
             <option value="MxPlus_IBM_BIOS_Centered">MxPlus IBM BIOS Centered</option>
             <option value="Arial">Arial</option>
@@ -1030,5 +1054,8 @@ function save_png(){
 function correct_value(name){if(name.includes("+")||name.includes("-")||name.includes("*")||name.includes("/")){return parseInt(eval(name))}else{return parseInt(name)}}
 function state_back(n){state_num+=n;if(state_num<0){state_num=0}else if(state_num>=back_up.length-1){state_num=back_up.length-1};db=back_up[state_num].split("\n");buildWorld();}
 document.addEventListener('DOMContentLoaded',function(){createPalette();active_brush.innerHTML=brush;active_bkgBrush.style.backgroundColor=bkgBrush;if(localStorage.getItem("range_font")){range_font=JSON.parse(localStorage.getItem("range_font"))};if(localStorage.getItem("palette")){palette=localStorage.getItem("palette");createPalette();}})
+
+function update_label_selected(checkbox) {if(checkbox.checked){checkbox.parentElement.classList.add('button_text_selected');}else{checkbox.parentElement.classList.remove('button_text_selected');}}
+
 </script>
 </body></html>
