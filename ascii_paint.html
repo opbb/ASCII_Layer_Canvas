@@ -479,9 +479,7 @@ input[type=range]::-moz-range-progress{-moz-appearance:none;height:8px;backgroun
         <tr><td title='Fill' onclick="select_tool(3);" class='tools icon button_menu icon_fill'></td></tr>
         <tr><td title='Pipette' onclick="select_tool(4);" class='tools icon button_menu icon_pipette'></td></tr>
         <tr><td title='Selected' onclick="select_tool(5);" class='tools icon button_menu icon_selected'></td></tr>
-        <tr><td title='Brush' onclick="select_tool(6);" class='tools icon button_menu icon_brush'></td></tr>
-        <tr><td id="active_brush" align='center' valign='center' class="tools icon" style="font-size:18px; width:40px;height:40px;border-top:1px solid var(--cb);"></td></tr>
-        <tr><td id="active_bkgBrush" align='center' valign='center' class="tools icon" style="font-size:18px;border-radius:0 0 16px 16px; width:40px;height:40px;">&nbsp;</td></tr>
+        <tr><td id="active_brush" align='center' valign='center' class="tools icon" style="font-size:18px; border-radius:0 0 16px 16px; width:40px;height:40px;border-top:1px solid var(--cb);"></td></tr>
     </tbody>
 </table>
 <div id="scene_controll">
@@ -561,7 +559,7 @@ function menu_right(e){
     context_menu.style.top=(e.clientY+asciiscreen.scrollTop-doc.top)/scale+"px";
 }
 window.addEventListener('mousemove',function(e){if(tool==5){cursor_text.style.left=(e.clientX+16)+"px";cursor_text.style.top=(e.clientY+16)+"px";}})
-window.addEventListener('mousedown',function(e){if(e.button==0){if(tool==0||tool==3||tool==5||tool==6){mouseclick=true;};if(contextmenushow){contextmenushow=false;context_menu.style.visibility='hidden';mouseclick=false;}} })
+window.addEventListener('mousedown',function(e){if(e.button==0){if(tool==0||tool==3||tool==5){mouseclick=true;};if(contextmenushow){contextmenushow=false;context_menu.style.visibility='hidden';mouseclick=false;}} })
 window.addEventListener('mouseup',function(){mouseclick=false;cursor_text.style.display="none"})
 window.addEventListener('keypress',function(e){let n=String.fromCharCode(e.charCode);brush=n;active_brush.innerHTML=brush;})
 asciicanvas.addEventListener('mouseup',function(){if(tool!=2&&tool!=5){state_save()};})
@@ -656,6 +654,33 @@ document.onkeyup = function () {
     }
 }
 
+const char_brush_checkbox = document.getElementById("brush_type_char");
+const bg_brush_checkbox = document.getElementById("brush_type_bg");
+const class_brush_checkbox = document.getElementById("brush_type_class");
+function paint_cell(cell) {
+  if (char_brush_checkbox.checked) {
+    cell.innerHTML=brush;
+  }
+  if (bg_brush_checkbox.checked) {
+    cell.style.backgroundColor=bkgBrush;
+  }
+  if (class_brush_checkbox.checked) {
+    // TODO: Implement cell classes
+  }
+}
+
+function erase_cell(cell) {
+  if (char_brush_checkbox.checked) {
+    cell.innerHTML=' ';
+  }
+  if (bg_brush_checkbox.checked) {
+    cell.style.backgroundColor='';
+  }
+  if (class_brush_checkbox.checked) {
+    // TODO: Implement cell classes
+  }
+}
+
 function add_cells(u,s){
     var x,y,w=0,h=0,a;db=[];
     tr=canvas.getElementsByTagName('tr');
@@ -700,8 +725,8 @@ function buildWorld(){
         tr=document.createElement("tr");
         for(x=0;x<w;x++){
             td=document.createElement("td");
-            td.setAttribute("onmouseenter","if(event.which!=3&&!contextmenushow){targetcell=["+x+","+y+"];cur_x.innerHTML="+(x+1)+";cur_y.innerHTML="+(y+1)+";if(mouseclick){if(tool==5){selected[2]="+x+";selected[3]="+y+";select_arr();} else if(tool==0){this.innerHTML=brush;} else if(tool==6){this.style.backgroundColor=bkgBrush;} else if(tool==3){this.innerHTML=' ';this.style.backgroundColor='';}}}")
-            td.setAttribute("onmousedown","if(event.button==0&&event.which!=3&&!contextmenushow){if(tool==5){selected=["+x+","+y+","+x+","+y+"];select_arr();}else if(tool==0){this.innerHTML=brush;}else if(tool==3){this.innerHTML=' ';this.style.backgroundColor='';}else if(tool==1){start_fill("+x+","+y+",this.textContent);}else if(tool==4){brush=this.textContent;active_brush.innerHTML=brush;} else if(tool==6){this.style.backgroundColor=bkgBrush;}}")
+            td.setAttribute("onmouseenter", "onMouseEnter(event,this,"+x+","+y+")") // "if(event.which!=3&&!contextmenushow){targetcell=["+x+","+y+"];cur_x.innerHTML="+(x+1)+";cur_y.innerHTML="+(y+1)+";if(mouseclick){if(tool==5){selected[2]="+x+";selected[3]="+y+";select_arr();} else if(tool==0){paint_cell(this);} else if(tool==3){this.innerHTML=' ';this.style.backgroundColor='';}}}")
+            td.setAttribute("onmousedown", "onMouseDown(event,this,"+x+","+y+")") //"if(event.button==0&&event.which!=3&&!contextmenushow){if(tool==5){selected=["+x+","+y+","+x+","+y+"];select_arr();}else if(tool==0){paint_cell(this);}else if(tool==3){this.innerHTML=' ';this.style.backgroundColor='';}else if(tool==1){start_fill("+x+","+y+",this.textContent);}else if(tool==4){brush=this.textContent;active_brush.innerHTML=brush;}}")
             td.setAttribute("oncontextmenu","targetcell=["+x+","+y+"]")
             if(se&&(x1<=x&&x<=x2)&&(y1<=y&&y<=y2)){td.style.backgroundColor="var(--cw)"}
             if(db[y][x]&&db[y][x]!=" "){td.innerHTML=db[y][x]}else{td.innerHTML=" "}
@@ -713,6 +738,7 @@ function buildWorld(){
     asciiview.style.width=rect.width+512+"px"
 }
 function select_arr(){
+  console.log(selected);
     if(selected[1]!=selected[3]||selected[0]!=selected[2]){arr_size.innerHTML=(Math.abs(selected[2]-selected[0])+1)+" X "+(Math.abs(selected[3]-selected[1])+1)}
     tr=canvas.getElementsByTagName('tr');
     for(var y=0;y<tr.length;y++){
@@ -1053,9 +1079,45 @@ function save_png(){
 }
 function correct_value(name){if(name.includes("+")||name.includes("-")||name.includes("*")||name.includes("/")){return parseInt(eval(name))}else{return parseInt(name)}}
 function state_back(n){state_num+=n;if(state_num<0){state_num=0}else if(state_num>=back_up.length-1){state_num=back_up.length-1};db=back_up[state_num].split("\n");buildWorld();}
-document.addEventListener('DOMContentLoaded',function(){createPalette();active_brush.innerHTML=brush;active_bkgBrush.style.backgroundColor=bkgBrush;if(localStorage.getItem("range_font")){range_font=JSON.parse(localStorage.getItem("range_font"))};if(localStorage.getItem("palette")){palette=localStorage.getItem("palette");createPalette();}})
+document.addEventListener('DOMContentLoaded',function(){createPalette();active_brush.innerHTML=brush;active_brush.style.backgroundColor=bkgBrush;if(localStorage.getItem("range_font")){range_font=JSON.parse(localStorage.getItem("range_font"))};if(localStorage.getItem("palette")){palette=localStorage.getItem("palette");createPalette();}})
 
 function update_label_selected(checkbox) {if(checkbox.checked){checkbox.parentElement.classList.add('button_text_selected');}else{checkbox.parentElement.classList.remove('button_text_selected');}}
+function onMouseEnter(event, cell, x, y) {
+  if (event.which!=3&&!contextmenushow) {
+    targetcell=[x,y];
+    cur_x.innerHTML=(x+1);
+    cur_y.innerHTML=(y+1);
+    if (mouseclick) {
+      if (tool==5) {
+        selected[2]=x;
+        selected[3]=y;
+        select_arr();
+      } else if (tool==0) {
+        paint_cell(cell);
+      } else if (tool==3) {
+        erase_cell(cell);
+      }
+    }
+  }
+}
+function onMouseDown(event, cell, x, y) {
+  if(event.button==0 && event.which!=3 && !contextmenushow) {
+    if(tool==5) {
+      selected=[x, y, x, y];
+      console.log(selected);
+      select_arr();
+    } else if (tool==0) {
+      paint_cell(cell);
+    }else if (tool==3) {
+      erase_cell(cell);
+    } else if (tool==1) {
+      start_fill(x, y, cell.textContent);
+    } else if (tool==4) {
+      brush=cell.textContent;
+      active_brush.innerHTML=brush;
+    }
+  }
+}
 
 </script>
 </body></html>
